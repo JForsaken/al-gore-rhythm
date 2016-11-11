@@ -1,4 +1,3 @@
-import { test1, test2 } from './test';
+import getData from './lector';
 
-test1();
-test2();
+console.log(getData('JSON'));
