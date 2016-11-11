@@ -1,4 +1,4 @@
-# Al Gore Rhythm :saxophone::musical_note:::::
+# Al Gore Rhythm 🎷🎶
 
 Al Gore's got something in mind, and it's not your average Do-Re-Mi.
 
