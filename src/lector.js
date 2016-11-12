@@ -60,11 +60,13 @@ function transform(data) {
     return average;
   }
 
-  const playerObjects = values.map(buildPlayerFromDatum).map(reduceComplexity);
+  const playerObjects = values.map(buildPlayerFromDatum).map(reduceComplexity).filter(normalize);
+
   // compute average values;
   const averageValues = computeAverageValues(playerObjects);
   console.log(averageValues);
-  return playerObjects.filter(normalize);
+
+  return playerObjects;
 }
 
 // testing read file of JSON and CSV
