@@ -19,6 +19,8 @@ function transform(data) {
       player[key] = parseFloat(datum) || 0;
     });
 
+    console.log(player.APM);
+
     return player;
   }
 
@@ -26,9 +28,13 @@ function transform(data) {
     // Ensure league is valid
     const isLeagueValid = datum.LeagueIndex >= 1 && datum.LeagueIndex <= 8;
     const isUnique = !uniqueIds.includes(datum.GameID); // Remove duplicates gamer ID
-
+    const isHoursPerWeekValid = datum.HoursPerWeek < 100;
+    const isAPMValid = datum.APM < 750; // 600 is 10 actions / seconds.
+    
     uniqueIds.push(datum.GameID);
-    return isLeagueValid && isUnique;
+
+    delete datum.GameID; // We don't need it ...
+    return isLeagueValid && isUnique && isHoursPerWeekValid && isAPMValid;
   }
 
   function reduceComplexity(datum) {
