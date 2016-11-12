@@ -14,10 +14,5 @@ function buildPlayerFromDatum(playerData) {
   return player;
 }
 
-// An item should be a list of values
-function parseCSVItem(item) {
-  return buildPlayerFromDatum(item);
-}
-
-const playerObjects = values.map(parseCSVItem);
+const playerObjects = values.map(buildPlayerFromDatum);
 console.log(playerObjects);
