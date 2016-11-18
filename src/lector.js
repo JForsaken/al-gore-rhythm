@@ -4,11 +4,9 @@ import csvData from '../assets/data.csv';
 
 function transform(data) {
   const keys = data[0];
-  const values = data.slice(1).filter((datum) => {
-    return datum.length > 1;
-  }); // The last data is of length 1 for some reasons
-
   const uniqueIds = [];
+  // The last data is of length 1 for some reason
+  const values = data.slice(1).filter(datum => datum.length > 1);
 
   function buildPlayerFromDatum(playerDatum) {
     const player = {};
@@ -28,7 +26,7 @@ function transform(data) {
     const isUnique = !uniqueIds.includes(datum.GameID); // Remove duplicates gamer ID
     const isHoursPerWeekValid = datum.HoursPerWeek < 100;
     const isAPMValid = datum.APM < 750; // 600 is 10 actions / seconds.
-    const isAgeValid = true;//= datum.Age > 0 && datum.Age < 100; 
+    const isAgeValid = true;//= datum.Age > 0 && datum.Age < 100;
     uniqueIds.push(datum.GameID);
 
     delete datum.GameID; // We don't need it ...
@@ -40,7 +38,7 @@ function transform(data) {
   }
 
   function computeAverageValues(playerData) {
-    var copy = JSON.parse(JSON.stringify(playerData));
+    const copy = JSON.parse(JSON.stringify(playerData));
     const reduced = copy.reduce((prev, cur) => {
       Object.keys(cur).forEach((key) => {
         if (!(key in prev)) {
@@ -66,7 +64,7 @@ function transform(data) {
   }
 
   const playerObjects = values.map(buildPlayerFromDatum).map(reduceComplexity).filter(normalize);
-  
+
   // compute average values;
   const averageValues = computeAverageValues(playerObjects);
   console.log('\n' + playerObjects.length + ' ===> AVERAGE VALUES FOR ALL LEAGUES v\n');
