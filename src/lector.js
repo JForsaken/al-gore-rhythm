@@ -67,39 +67,39 @@ function transform(data) {
 
   // compute average values;
   const averageValues = computeAverageValues(playerObjects);
-  console.log(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES v\n`);
+  console.log(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES \n`);
   console.log(averageValues);
 
   const league1Players = playerObjects.filter(player => player.LeagueIndex === 1);
-  console.log(`\n${league1Players.length} ===> AVERAGE VALUES FOR LEAGUE 1 v\n`);
+  console.log(`\n${league1Players.length} ===> AVERAGE VALUES FOR LEAGUE 1 \n`);
   console.log(computeAverageValues(league1Players));
 
   const league2Players = playerObjects.filter(player => player.LeagueIndex === 2);
-  console.log(`\n${league2Players.length} ===> AVERAGE VALUES FOR LEAGUE 2 v\n`);
+  console.log(`\n${league2Players.length} ===> AVERAGE VALUES FOR LEAGUE 2 \n`);
   console.log(computeAverageValues(league2Players));
 
   const league3Players = playerObjects.filter(player => player.LeagueIndex === 3);
-  console.log(`\n${league3Players.length} ===> AVERAGE VALUES FOR LEAGUE 3 v\n`);
+  console.log(`\n${league3Players.length} ===> AVERAGE VALUES FOR LEAGUE 3 \n`);
   console.log(computeAverageValues(league3Players));
 
   const league4Players = playerObjects.filter(player => player.LeagueIndex === 4);
-  console.log(`\n${league4Players.length} ===> AVERAGE VALUES FOR LEAGUE 4 v\n`);
+  console.log(`\n${league4Players.length} ===> AVERAGE VALUES FOR LEAGUE 4 \n`);
   console.log(computeAverageValues(league4Players));
 
   const league5Players = playerObjects.filter(player => player.LeagueIndex === 5);
-  console.log(`\n${league5Players.length} ===> AVERAGE VALUES FOR LEAGUE 5 v\n`);
+  console.log(`\n${league5Players.length} ===> AVERAGE VALUES FOR LEAGUE 5 \n`);
   console.log(computeAverageValues(league5Players));
 
   const league6Players = playerObjects.filter(player => player.LeagueIndex === 6);
-  console.log(`\n${league6Players.length} ===> AVERAGE VALUES FOR LEAGUE 6 v\n`);
+  console.log(`\n${league6Players.length} ===> AVERAGE VALUES FOR LEAGUE 6 \n`);
   console.log(computeAverageValues(league6Players));
 
   const league7Players = playerObjects.filter(player => player.LeagueIndex === 7);
-  console.log(`\n${league7Players.length} ===> AVERAGE VALUES FOR LEAGUE 7 v\n`);
+  console.log(`\n${league7Players.length} ===> AVERAGE VALUES FOR LEAGUE 7 \n`);
   console.log(computeAverageValues(league7Players));
 
   const league8Players = playerObjects.filter(player => player.LeagueIndex === 8);
-  console.log(`\n${league8Players.length} ===> AVERAGE VALUES FOR LEAGUE 8 v\n`);
+  console.log(`\n${league8Players.length} ===> AVERAGE VALUES FOR LEAGUE 8 \n`);
   console.log(computeAverageValues(league8Players));
 
   return playerObjects;
