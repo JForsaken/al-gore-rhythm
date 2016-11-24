@@ -20,17 +20,21 @@ function transform(data) {
     return player;
   }
 
-  function normalize(datum) {
+  function removeAberrant(datum) {
     // Ensure league is valid
     const isLeagueValid = datum.LeagueIndex >= 1 && datum.LeagueIndex <= 8;
     const isUnique = !uniqueIds.includes(datum.GameID); // Remove duplicates gamer ID
     const isHoursPerWeekValid = datum.HoursPerWeek < 100;
     const isAPMValid = datum.APM < 750; // 600 is 10 actions / seconds.
-    const isAgeValid = true;//= datum.Age > 0 && datum.Age < 100;
+    const isAgeValid = datum.Age > 0 && datum.Age < 100;
     uniqueIds.push(datum.GameID);
 
     delete datum.GameID; // We don't need it ...
     return isLeagueValid && isUnique && isHoursPerWeekValid && isAPMValid && isAgeValid;
+  }
+
+  function normalize(datum) {
+    return datum;
   }
 
   function reduceComplexity(datum) {
@@ -63,7 +67,7 @@ function transform(data) {
     return average;
   }
 
-  const playerObjects = values.map(buildPlayerFromDatum).map(reduceComplexity).filter(normalize);
+  const playerObjects = values.map(buildPlayerFromDatum).map(reduceComplexity).filter(removeAberrant).map(normalize);
 
   // compute average values;
   const averageValues = computeAverageValues(playerObjects);
