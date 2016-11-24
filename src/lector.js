@@ -1,4 +1,5 @@
 // file paths
+import R from 'ramda';
 import jsonData from '../assets/data.json';
 import csvData from '../assets/data.csv';
 
@@ -21,15 +22,16 @@ function transform(data) {
   }
 
   function removeAberrant(datum) {
+    const temp = R.clone(datum);
     // Ensure league is valid
-    const isLeagueValid = datum.LeagueIndex >= 1 && datum.LeagueIndex <= 8;
-    const isUnique = !uniqueIds.includes(datum.GameID); // Remove duplicates gamer ID
-    const isHoursPerWeekValid = datum.HoursPerWeek < 100;
-    const isAPMValid = datum.APM < 750; // 600 is 10 actions / seconds.
-    const isAgeValid = datum.Age > 0 && datum.Age < 100;
-    uniqueIds.push(datum.GameID);
+    const isLeagueValid = temp.LeagueIndex >= 1 && temp.LeagueIndex <= 8;
+    const isUnique = !uniqueIds.includes(temp.GameID); // Remove duplicates gamer ID
+    const isHoursPerWeekValid = temp.HoursPerWeek < 100;
+    const isAPMValid = temp.APM < 750; // 600 is 10 actions / seconds.
+    const isAgeValid = temp.Age > 0 && temp.Age < 100;
+    uniqueIds.push(temp.GameID);
 
-    delete datum.GameID; // We don't need it ...
+    delete temp.GameID; // We don't need it ...
     return isLeagueValid && isUnique && isHoursPerWeekValid && isAPMValid && isAgeValid;
   }
 
@@ -44,19 +46,21 @@ function transform(data) {
   function computeAverageValues(playerData) {
     const copy = JSON.parse(JSON.stringify(playerData));
     const reduced = copy.reduce((prev, cur) => {
-      Object.keys(cur).forEach((key) => {
+      const current = R.clone(cur);
+      const previous = R.clone(prev);
+      Object.keys(current).forEach((key) => {
         if (!(key in prev)) {
-          prev[key] = 0.0;
+          previous[key] = 0.0;
         }
 
-        if (!(key in cur)) {
-          cur[key] = 0.0;
+        if (!(key in current)) {
+          current[key] = 0.0;
         }
 
-        cur[key] += prev[key];
+        current[key] += previous[key];
       });
 
-      return cur;
+      return current;
     }, {});
 
     const average = {};
