@@ -1,7 +1,28 @@
 import getData from './lector';
 import KNN from './scholar';
 
-getData('CSV');
+const data = getData('CSV');
+ const copy = JSON.parse(JSON.stringify(data));
+//console.log(data);
+
+for (var key in data)
+{
+	if (data.hasOwnProperty(key)) {
+		console.log(key + " -> " + data[key]);
+	}
+}
+
+var p = {
+    "p1": "value1",
+    "p2": "value2",
+    "p3": "value3"
+};
+
+for (var key in p) {
+  if (p.hasOwnProperty(key)) {
+    console.log(key + " -> " + p['p1']);
+  }
+}
 
 const k = 3; // number of params
 const knn = new KNN(k);
