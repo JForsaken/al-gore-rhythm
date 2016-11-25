@@ -1,18 +1,26 @@
+
 import { getData } from './lector';
+
 import KNN from './scholar';
+import DecisionTree from './scholar2';
 
-getData('CSV');
+var data = [];
+var result = [];
 
-const k = 3; // number of params
-const knn = new KNN(k);
+var rows = getData('CSV', true);
 
-knn.learn([-1, 2, 3], 'good');
-knn.learn([0, 0, 0], 'good');
-knn.learn([10, 10, 10], 'bad');
-knn.learn([9, 12, 9], 'bad');
+rows.forEach((datum, index) => {
+    datum.splice(0, 1);
+    result.push(datum[0]);
+    datum.splice(0, 1);
+});
 
-// returns 'good'
-console.log(knn.classify([1, 0, 1]));
+data.push(rows);
 
-// returns 'bad'
-console.log(knn.classify([11, 11, 9]));
+console.log(data);
+
+var dt = new DecisionTree(data[0], result);
+dt.build();
+
+console.log("Classify : ", dt.classify([22,4,300,90.4908,0.0012559372,0.0002511874,3,0,0.000411034,0.0026717209,66.2414,65.641,5.9402,21,0.00061655,4,0,0]));
+ 
