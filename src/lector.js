@@ -3,6 +3,8 @@ import R from 'ramda';
 import jsonData from '../assets/data.json';
 import csvData from '../assets/data.csv';
 
+const trainSet [];
+const learnSet = [];
 function transform(data) {
   const keys = data[0];
   const uniqueIds = [];
@@ -71,6 +73,25 @@ function transform(data) {
     return average;
   }
 
+  function splitData(leagues) {
+    const splitedLeagues = leagues.map((leaguePlayers) => {
+      const first = R.clone(leaguePlayers);
+      const splitIndex = Math.ceil(first.length / 2); 
+      const second = first.splice(0, splitIndex);
+      return { first: first, second: second };
+    });
+
+    const first = R.flatten(splitedLeagues.map((splitedLeaguePlayers) => {
+      return splitedLeaguePlayers.first
+    }));
+
+    const second = R.flatten(splitedLeagues.map((splitedLeaguePlayers) => {
+      return splitedLeaguePlayers.second
+    }));
+
+    return { first: first, second: second };
+  }
+
   const playerObjects = values.map(buildPlayerFromDatum)
                               .map(reduceComplexity)
                               .filter(removeAberrant)
@@ -113,15 +134,30 @@ function transform(data) {
   console.log(`\n${league8Players.length} ===> AVERAGE VALUES FOR LEAGUE 8 \n`);
   console.log(computeAverageValues(league8Players));
 
-  return playerObjects;
+  const splitedLeaguePlayers = [
+    league1Players,
+    league2Players,
+    league3Players,
+    league4Players,
+    league5Players,
+    league6Players,
+    league7Players,
+    league8Players
+  ];
+
+  const dataSet = splitData(splitedLeaguePlayers);
+  trainSet = dataSet.first;
+  learnSet = dataSet.second;
+  return { trainingSet: trainSet, learningSet: learnSet };
 }
 
 // testing read file of JSON and CSV
 // Also tests webpack's CSV to JSON conversion
-export default (type) => {
+export getData(type) => {
   if (type === 'JSON') {
     return jsonData;
   }
 
   return transform(csvData);
 };
+
