@@ -3,8 +3,8 @@ import R from 'ramda';
 import jsonData from '../assets/data.json';
 import csvData from '../assets/data.csv';
 
-const trainSet [];
-const learnSet = [];
+let trainSet = [];
+let learnSet = [];
 function transform(data) {
   const keys = data[0];
   const uniqueIds = [];
@@ -76,20 +76,15 @@ function transform(data) {
   function splitData(leagues) {
     const splitedLeagues = leagues.map((leaguePlayers) => {
       const first = R.clone(leaguePlayers);
-      const splitIndex = Math.ceil(first.length / 2); 
+      const splitIndex = Math.ceil(first.length / 2);
       const second = first.splice(0, splitIndex);
-      return { first: first, second: second };
+      return { first, second };
     });
 
-    const first = R.flatten(splitedLeagues.map((splitedLeaguePlayers) => {
-      return splitedLeaguePlayers.first
-    }));
+    const f = R.flatten(splitedLeagues.map(splitedLeaguePlayers => splitedLeaguePlayers.first));
+    const s = R.flatten(splitedLeagues.map(splitedLeaguePlayers => splitedLeaguePlayers.second));
 
-    const second = R.flatten(splitedLeagues.map((splitedLeaguePlayers) => {
-      return splitedLeaguePlayers.second
-    }));
-
-    return { first: first, second: second };
+    return { first: f, second: s };
   }
 
   const playerObjects = values.map(buildPlayerFromDatum)
@@ -142,7 +137,7 @@ function transform(data) {
     league5Players,
     league6Players,
     league7Players,
-    league8Players
+    league8Players,
   ];
 
   const dataSet = splitData(splitedLeaguePlayers);
@@ -153,11 +148,11 @@ function transform(data) {
 
 // testing read file of JSON and CSV
 // Also tests webpack's CSV to JSON conversion
-export getData(type) => {
+export default null;
+export const getData = (type) => {
   if (type === 'JSON') {
     return jsonData;
   }
 
   return transform(csvData);
 };
-

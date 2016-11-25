@@ -1,4 +1,4 @@
-import getData from './lector';
+import { getData } from './lector';
 import KNN from './scholar';
 
 getData('CSV');
