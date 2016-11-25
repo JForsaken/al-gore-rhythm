@@ -28,7 +28,7 @@ DecisionTree.prototype.build = function(options) {
         players[i].push(self.result[i]);
     }
 
-    self.tree = buildTree(players, entropy);
+    self.tree = build(players, entropy);
     return self.tree;
 };
 
@@ -55,16 +55,14 @@ function classify(input, tree) {
     }
 }
 
-function buildTree(players, scoref) {
+function build(players, score) {
 
     if(players.length == 0) return new Node();
 
-    var currentScore = scoref(players);    
+    var currentScore = score(players);    
     var bestGain = 0.0, bestCriteria, bestSets;
     var columnCount = players[0].length - 1;
     var col, i;
-
-    console.log(columnCount);
 
     for(col = 0; col < columnCount; col++) {
         var columnValues = {};
@@ -75,7 +73,7 @@ function buildTree(players, scoref) {
         for(i=0; i<values.length; i++) {
             var sets = divideSet(players,col,values[i]);
             var p = 1.*sets[0].length / players.length;
-            var gain = currentScore - p*scoref(sets[0]) - (1-p)*scoref(sets[1]);
+            var gain = currentScore - p*score(sets[0]) - (1-p)*score(sets[1]);
             if(gain > bestGain && sets[0].length > 0 && sets[1].length > 0) {
                 bestGain = gain;
                 bestCriteria = [col,values[i]];
@@ -85,8 +83,8 @@ function buildTree(players, scoref) {
     }
 
     if(bestGain > 0) {
-        var trueBranch = buildTree(bestSets[0], scoref);
-        var falseBranch = buildTree(bestSets[1], scoref);
+        var trueBranch = build(bestSets[0], score);
+        var falseBranch = build(bestSets[1], score);
 
         return new Node({
             col : bestCriteria[0],
@@ -103,7 +101,8 @@ function buildTree(players, scoref) {
 }
 
 function entropy(players) {
-    var log2 = function(x) { return Math.log(x)/Math.log(2); };
+    var log2 = function(x) { return Math.log(x) / Math.log(2); };
+
     var results = uniqueCounts(players);
     var ent = 0.0;
     var keys = Object.keys(results);
@@ -138,9 +137,9 @@ function divideSet(players, column, value) {
 
     // is a number
     if(!isNaN(parseFloat(value)) && isFinite(value))
-        splitFunction = function(row) {return row[column] >= value;};
+        splitFunction = function(player) {return player[column] >= value;};
     else
-        splitFunction = function(row) {return row[column] === value;};
+        splitFunction = function(player) {return player[column] === value;};
 
     var set1 = [], set2 = [];
     var i;
@@ -152,5 +151,5 @@ function divideSet(players, column, value) {
             set2.push(players[i]);
     }
 
-    return [set1,set2];
+    return [set1, set2];
 }

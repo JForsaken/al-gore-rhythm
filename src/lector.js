@@ -3,6 +3,47 @@ import R from 'ramda';
 let trainSet = [];
 let learnSet = [];
 
+function transformRaw(data) {    
+  const keys = data[0];  
+  const values = data.slice(1).filter(datum => datum.length > 1);
+
+  function buildPlayerFromDatum(playerDatum) {
+    const player = [];
+    
+    playerDatum.forEach((datum, index) => {
+      player.push(parseFloat(datum) || 0);
+    });
+    
+    return player;
+  }
+
+  function removeAberrant(datum) {
+    const temp = R.clone(datum);
+    
+    const isLeagueValid = temp[1] >= 1 && temp[1] <= 8;
+    const isHoursPerWeekValid = temp[3] < 100;
+    const isAPMValid = temp[5] < 750; 
+
+    return isLeagueValid && isHoursPerWeekValid && isAPMValid;
+  }
+
+  function reduceComplexity(datum) {
+    const temp = R.clone(datum);
+
+    delete temp[15];
+    delete temp[17];
+    delete temp[2];
+
+    return temp;
+  } 
+
+  var playerObjects = values.map(buildPlayerFromDatum)
+                        .map(reduceComplexity)
+                        .filter(removeAberrant);
+  
+  return playerObjects;
+}
+
 function transform(data) {
   const keys = data[0];
   const uniqueIds = [];
@@ -154,54 +195,6 @@ function transform(data) {
   trainSet = dataSet.first;
   learnSet = dataSet.second;
   return { trainingSet: trainSet, learningSet: learnSet };
-}
-
-function transformRaw(data) {  
-  console.log('test');
-
-  const keys = data[0];
-  const uniqueIds = [];
-  const values = data.slice(1).filter(datum => datum.length > 1);
-
-  function buildPlayerFromDatum(playerDatum) {
-    const player = [];
-    
-    playerDatum.forEach((datum, index) => {
-      player.push(parseFloat(datum) || 0);
-    });
-    
-    return player;
-  }
-
-  function removeAberrant(datum) {
-    const temp = R.clone(datum);
-    
-    const isLeagueValid = temp[1] >= 1 && temp[1] <= 8;
-    const isHoursPerWeekValid = temp[3] < 100;
-    const isAPMValid = temp[5] < 750; 
-
-    return isLeagueValid && isHoursPerWeekValid && isAPMValid;
-  }
-
-  function normalize(datum) {
-    return datum;
-  }
-
-  function reduceComplexity(datum) {
-    const temp = R.clone(datum);
-
-    delete temp[15];
-    delete temp[17];
-    delete temp[2];
-
-    return temp;
-  } 
-
-  var playerObjects = values.map(buildPlayerFromDatum)
-                              .map(reduceComplexity)
-                              .filter(removeAberrant);
-  
-  return playerObjects;
 }
 
 export default null;
