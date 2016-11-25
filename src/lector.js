@@ -1,10 +1,8 @@
-// file paths
 import R from 'ramda';
-import jsonData from '../assets/data.json';
-import csvData from '../assets/data.csv';
 
 let trainSet = [];
 let learnSet = [];
+
 function transform(data) {
   const keys = data[0];
   const uniqueIds = [];
@@ -46,7 +44,7 @@ function transform(data) {
   }
 
   function computeAverageValues(playerData) {
-    const copy = R.clone(playerData); 
+    const copy = R.clone(playerData);
     const reduced = copy.reduce((prev, cur) => {
       const current = R.clone(cur);
       const previous = R.clone(prev);
@@ -86,22 +84,22 @@ function transform(data) {
 
     return { first: f, second: s };
   }
-  
+
   function computeMinMaxValues(playerData) {
-    var min = R.clone(playerData[0]); // TODO put all values to 0
+    const min = R.clone(playerData[0]); // TODO put all values to 0
     Object.keys(min).forEach((key) => {
        min[key] = 0;
     });
-    var max = R.clone(min); // TODO put all values to 0
+    const max = R.clone(min); // TODO put all values to 0
 
-    return playerData; 
+    return playerData;
   }
 
-  var playerObjects = values.map(buildPlayerFromDatum)
+  let playerObjects = values.map(buildPlayerFromDatum)
                               .map(reduceComplexity)
                               .filter(removeAberrant);
-  
-  //const minMaxValues = computeMinMaxValues(playerObjects);
+
+  // const minMaxValues = computeMinMaxValues(playerObjects);
   playerObjects = playerObjects.map(normalize);
 
   // compute average values;
@@ -157,27 +155,17 @@ function transform(data) {
   learnSet = dataSet.second;
   return { trainingSet: trainSet, learningSet: learnSet };
 }
- 
-// testing read file of JSON and CSV
-// Also tests webpack's CSV to JSON conversion
-export default null;
-export const getData = (type, raw) => {
-  if (type === 'JSON') {
-    return jsonData;
-  }
-
-  return raw 
-      ? transformRaw(csvData)
-      : transform(csvData);  
-};
 
 function transformRaw(data) {  
+  console.log('test');
+
   const keys = data[0];
   const uniqueIds = [];
   const values = data.slice(1).filter(datum => datum.length > 1);
 
   function buildPlayerFromDatum(playerDatum) {
     const player = [];
+    
     playerDatum.forEach((datum, index) => {
       player.push(parseFloat(datum) || 0);
     });
@@ -215,3 +203,7 @@ function transformRaw(data) {
   
   return playerObjects;
 }
+
+export default null;
+export const getData = (file, raw) => raw ? transformRaw(require(`../assets/${file}`)) : transform(require(`../assets/${file}`));
+

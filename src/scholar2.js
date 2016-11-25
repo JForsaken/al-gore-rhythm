@@ -64,6 +64,8 @@ function buildTree(players, scoref) {
     var columnCount = players[0].length - 1;
     var col, i;
 
+    console.log(columnCount);
+
     for(col = 0; col < columnCount; col++) {
         var columnValues = {};
         for(i = 0; i < players.length; i++) {
