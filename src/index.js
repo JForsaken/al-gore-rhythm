@@ -6,8 +6,8 @@ import { getData } from './lector';
 import { getDateTime } from './helpers';
 import KNN from './scholar';
 
-/* Terminal Menu */
 
+/* Terminal Menu */
 
 const welcome = '\nWelcome to Al Gore Rhythm!';
 const message = `In which file is the data located inside the ${chalk.underline.red('assets')} folder (JSON/CSV)? `;
