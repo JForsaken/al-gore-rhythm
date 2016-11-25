@@ -27,14 +27,9 @@ function transform(data) {
     const temp = R.clone(datum);
     // Ensure league is valid
     const isLeagueValid = temp.LeagueIndex >= 1 && temp.LeagueIndex <= 8;
-    const isUnique = !uniqueIds.includes(temp.GameID); // Remove duplicates gamer ID
     const isHoursPerWeekValid = temp.HoursPerWeek < 100;
     const isAPMValid = temp.APM < 750; // 600 is 10 actions / seconds.
-    const isAgeValid = temp.Age > 0 && temp.Age < 100;
-    uniqueIds.push(temp.GameID);
-
-    delete temp.GameID; // We don't need it ...
-    return isLeagueValid && isUnique && isHoursPerWeekValid && isAPMValid && isAgeValid;
+    return isLeagueValid && isHoursPerWeekValid && isAPMValid;
   }
 
   function normalize(datum) {
@@ -42,11 +37,16 @@ function transform(data) {
   }
 
   function reduceComplexity(datum) {
-    return datum; // TODO Choose what datum keys we remove to reduce the complexity
+    const temp = R.clone(datum);
+    delete temp.TotalMapExplored;
+    delete temp.UniqueUnitsMade;
+    delete temp.Age;
+
+    return temp;
   }
 
   function computeAverageValues(playerData) {
-    const copy = JSON.parse(JSON.stringify(playerData));
+    const copy = R.clone(playerData); 
     const reduced = copy.reduce((prev, cur) => {
       const current = R.clone(cur);
       const previous = R.clone(prev);
@@ -86,11 +86,23 @@ function transform(data) {
 
     return { first: f, second: s };
   }
+  
+  function computeMinMaxValues(playerData) {
+    var min = R.clone(playerData[0]); // TODO put all values to 0
+    Object.keys(min).forEach((key) => {
+       min[key] = 0;
+    });
+    var max = R.clone(min); // TODO put all values to 0
 
-  const playerObjects = values.map(buildPlayerFromDatum)
+    return playerData; 
+  }
+
+  var playerObjects = values.map(buildPlayerFromDatum)
                               .map(reduceComplexity)
-                              .filter(removeAberrant)
-                              .map(normalize);
+                              .filter(removeAberrant);
+  
+  //const minMaxValues = computeMinMaxValues(playerObjects);
+  playerObjects = playerObjects.map(normalize);
 
   // compute average values;
   const averageValues = computeAverageValues(playerObjects);
