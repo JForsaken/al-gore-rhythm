@@ -29,10 +29,6 @@ function transform(data) {
     return isLeagueValid && isHoursPerWeekValid && isAPMValid;
   }
 
-  function normalize(datum) {
-    return datum;
-  }
-
   function reduceComplexity(datum) {
     const temp = R.clone(datum);
     delete temp.TotalMapExplored;
@@ -146,6 +142,26 @@ function transform(data) {
 
   const minMaxValues = computeMinMaxValues(playerObjects);
   console.log(minMaxValues);
+
+  function normalize(datum) {
+    function shouldNormalize(key) { return key != 'LeagueIndex' && key != 'GameID'; }
+    const temp = {};
+    Object.keys(datum).forEach((key) => {
+      if (shouldNormalize(key)) {
+        const min = minMaxValues.min[key];
+        const max = minMaxValues.max[key];
+        temp[key] = (datum[key] - min) / (max - min);
+      }
+      else {
+        temp[key] = datum[key];
+      }
+    });
+
+    return temp;
+  }
+
+  playerObjects = playerObjects.map(normalize);
+  console.log('normalized ==>\n', playerObjects);
   const varianceValues = computeVarianceValues(playerObjects);
   console.log('variances', varianceValues);
   const standardDeviationValues = computeStandardDeviationValues(playerObjects);
