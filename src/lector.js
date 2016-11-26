@@ -5,7 +5,6 @@ let learnSet = [];
 
 function transform(data) {
   const keys = data[0];
-  const uniqueIds = [];
   // The last data is of length 1 for some reason
   const values = data.slice(1).filter(datum => datum.length > 1);
 
@@ -43,9 +42,9 @@ function transform(data) {
     return temp;
   }
 
-  function computeAverageValues(playerData) {
+  function computeSumValues(playerData) {
     const copy = R.clone(playerData);
-    const reduced = copy.reduce((prev, cur) => {
+    return copy.reduce((prev, cur) => {
       const current = R.clone(cur);
       const previous = R.clone(prev);
       Object.keys(current).forEach((key) => {
@@ -62,7 +61,10 @@ function transform(data) {
 
       return current;
     }, {});
+  }
 
+  function computeAverageValues(playerData) {
+    const reduced = computeSumValues(playerData);
     const average = {};
     Object.keys(reduced).forEach((key) => {
       average[key] = reduced[key] / playerData.length;
@@ -87,19 +89,68 @@ function transform(data) {
 
   function computeMinMaxValues(playerData) {
     const min = R.clone(playerData[0]); // TODO put all values to 0
-    Object.keys(min).forEach((key) => {
-       min[key] = 0;
-    });
     const max = R.clone(min); // TODO put all values to 0
+    Object.keys(min).forEach((key) => {
+      min[key] = Number.MAX_SAFE_INTEGER;
+      max[key] = -Number.MAX_SAFE_INTEGER;
+    });
 
-    return playerData;
+    playerData.forEach((player) => {
+      Object.keys(player).forEach((key) => {
+        const playerValue = parseFloat(player[key]);
+        if (playerValue > parseFloat(max[key])) {
+          max[key] = playerValue;
+        }
+
+        if (playerValue < parseFloat(min[key])) {
+          min[key] = playerValue;
+        }
+      });
+    });
+
+    return { min, max };
+  }
+
+  function computeVarianceValues(playerData) {
+    const averageValues = computeAverageValues(playerData);
+    const variances = {};
+
+    const temp = computeAverageValues(playerData.map((player) => {
+      const copy = R.clone(player);
+      Object.keys(copy).forEach((key) => {
+        copy[key] = (copy[key] - averageValues[key]) ** 2;
+      });
+      return copy;
+    }));
+
+    Object.keys(temp).forEach((key) => {
+      variances[key] = temp[key];
+    });
+
+    return variances;
+  }
+
+  function computeStandardDeviationValues(playerData) {
+    const varianceValues = computeVarianceValues(playerData);
+    const standardDeviations = {};
+    Object.keys(varianceValues).forEach((key) => {
+      standardDeviations[key] = varianceValues[key] ** 2;
+    });
+
+    return standardDeviations;
   }
 
   let playerObjects = values.map(buildPlayerFromDatum)
                               .map(reduceComplexity)
                               .filter(removeAberrant);
 
-  // const minMaxValues = computeMinMaxValues(playerObjects);
+  const minMaxValues = computeMinMaxValues(playerObjects);
+  console.log(minMaxValues);
+  const varianceValues = computeVarianceValues(playerObjects);
+  console.log('variances', varianceValues);
+  const standardDeviationValues = computeStandardDeviationValues(playerObjects);
+  console.log('standard deviations', standardDeviationValues);
+
   playerObjects = playerObjects.map(normalize);
 
   // compute average values;
