@@ -30,18 +30,38 @@ fs.writeFileSync(`./assets/${getDateTime()}.json`, JSON.stringify(data));
 
 /* Machine learning */
 
-const k = 3; // number of params
+const k = 37; // number of params
 const knn = new KNN(k);
 
-knn.learn([-1, 2, 3], 'good');
-knn.learn([0, 0, 0], 'good');
-knn.learn([10, 10, 10], 'bad');
-knn.learn([9, 12, 9], 'bad');
+function getFeatureVectorFromPlayer(player) {
+  const features = [];
+  Object.keys(player).forEach(function (key) {
+    if (key !== 'LeagueIndex') {
+      features.push(player[key]);
+    }
+  });
+
+  return features;
+}
+
+data.trainingSet.forEach((player) => {
+  knn.learn(getFeatureVectorFromPlayer(player), player.LeagueIndex);
+});
 
 /* Machine estimation */
 
-// returns 'good'
-console.log(knn.classify([1, 0, 1]));
+let goodEstimation = 0;
+let badEstimation = 0;
+data.learningSet.forEach((player) => {
+  const result = knn.classify(getFeatureVectorFromPlayer(player));
+  if (player.LeagueIndex === result) {
+    goodEstimation += 1;
+  }
+  else {
+    badEstimation += 1;
+  }
+});
 
-// returns 'bad'
-console.log(knn.classify([11, 11, 9]));
+console.log(`PRECISION ==> ${goodEstimation / (goodEstimation + badEstimation)}%`);
+console.log(`GOOD ==> ${goodEstimation}`);
+console.log(`BAD ==> ${badEstimation}`);

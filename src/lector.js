@@ -15,6 +15,9 @@ function transform(data) {
 
       // Data should only contain float & integer values
       player[key] = parseFloat(datum) || 0;
+      if (player.LeagueIndex === 8 && player.Age === 0) {
+        player.Age = 20.5;
+      }
     });
 
     return player;
@@ -24,16 +27,23 @@ function transform(data) {
     const temp = R.clone(datum);
     // Ensure league is valid
     const isLeagueValid = temp.LeagueIndex >= 1 && temp.LeagueIndex <= 8;
-    const isHoursPerWeekValid = temp.HoursPerWeek < 100;
     const isAPMValid = temp.APM < 750; // 600 is 10 actions / seconds.
-    return isLeagueValid && isHoursPerWeekValid && isAPMValid;
+    return isLeagueValid && isAPMValid;
   }
 
   function reduceComplexity(datum) {
     const temp = R.clone(datum);
-    delete temp.TotalMapExplored;
+    delete temp.GameID;
+//    delete temp.UniqueHotkeys; // From variance
+//    delete temp.MinimapAttacks; // From variance
+    delete temp.TotalMapExplored; // From common sense
+    delete temp.TotalHours;
+    delete temp.HoursPerWeek;
     delete temp.UniqueUnitsMade;
-    delete temp.Age;
+    delete temp.WorkersMade;
+    delete temp.ComplexUnitsMade;
+    delete temp.ComplexAbilitiesUsed;
+    delete temp.ActionsInPAC;
 
     return temp;
   }
@@ -69,10 +79,24 @@ function transform(data) {
     return average;
   }
 
+  // Second has no LeagueIndex
   function splitData(leagues) {
+    function shuffle(a) {
+      var temp = R.clone(a);
+      var j, x, i;
+      for (i = temp.length; i; --i) {
+        j = Math.floor(Math.random() * i);
+        x = temp[i - 1];
+        temp[i - 1] = temp[j];
+        temp[j] = x;
+      }
+
+      return temp;
+    }
+
     const splitedLeagues = leagues.map((leaguePlayers) => {
-      const first = R.clone(leaguePlayers);
-      const splitIndex = Math.ceil(first.length / 2);
+      const first = shuffle(R.clone(leaguePlayers));
+      const splitIndex = Math.ceil(first.length / 4);
       const second = first.splice(0, splitIndex);
       return { first, second };
     });
@@ -136,24 +160,64 @@ function transform(data) {
     return standardDeviations;
   }
 
+  // Convert data to objects, trim unrequired params, filter aberrant data
   let playerObjects = values.map(buildPlayerFromDatum)
                               .map(reduceComplexity)
                               .filter(removeAberrant);
 
+  const averageValues = computeAverageValues(playerObjects);
+
+  function assignAverageToNil(player) {
+    const temp = R.clone(player);
+    Object.keys(player).forEach((key) => {
+      if (temp[key] === 0) {
+        temp[key] = averageValues[key];
+      }
+    });
+
+    return temp;
+  }
+
+  playerObjects = playerObjects.map(assignAverageToNil);
   const minMaxValues = computeMinMaxValues(playerObjects);
   console.log(minMaxValues);
 
   function normalize(datum) {
-    function shouldNormalize(key) { return key != 'LeagueIndex' && key != 'GameID'; }
+    function shouldNormalize(key) { return key !== 'LeagueIndex'; }
     const temp = {};
     Object.keys(datum).forEach((key) => {
       if (shouldNormalize(key)) {
         const min = minMaxValues.min[key];
         const max = minMaxValues.max[key];
         temp[key] = (datum[key] - min) / (max - min);
-      }
-      else {
+      } else {
         temp[key] = datum[key];
+      }
+
+      // apply weights
+      // $POIDS
+      if (key === 'GapBetweenPACs') {
+        temp[key] = temp[key] * 1000;
+      }
+
+      if (key === 'ActionLatency') {
+        temp[key] = temp[key] * 1000;
+      }
+
+      if (key === 'APM') {
+        temp[key] = temp[key] * 1000;
+      }
+
+      if (key === 'UniqueHotkeys') {
+        temp[key] = temp[key] * 1;
+      }
+
+      if (key === 'AssignToHotkeys') {
+        temp[key] = temp[key] * 1;
+      }
+
+      if (key === 'MinimapAttacks') {
+        temp[key] = temp[key] * 10;
       }
     });
 
@@ -161,50 +225,25 @@ function transform(data) {
   }
 
   playerObjects = playerObjects.map(normalize);
-  console.log('normalized ==>\n', playerObjects);
-  const varianceValues = computeVarianceValues(playerObjects);
-  console.log('variances', varianceValues);
-  const standardDeviationValues = computeStandardDeviationValues(playerObjects);
-  console.log('standard deviations', standardDeviationValues);
 
-  playerObjects = playerObjects.map(normalize);
+  // STATS
+  //const varianceValues = computeVarianceValues(playerObjects);
+  //console.log('variances', varianceValues);
+  //const standardDeviationValues = computeStandardDeviationValues(playerObjects);
+  //console.log('standard deviations', standardDeviationValues);
 
   // compute average values;
-  const averageValues = computeAverageValues(playerObjects);
   console.log(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES \n`);
   console.log(averageValues);
 
   const league1Players = playerObjects.filter(player => player.LeagueIndex === 1);
-  console.log(`\n${league1Players.length} ===> AVERAGE VALUES FOR LEAGUE 1 \n`);
-  console.log(computeAverageValues(league1Players));
-
   const league2Players = playerObjects.filter(player => player.LeagueIndex === 2);
-  console.log(`\n${league2Players.length} ===> AVERAGE VALUES FOR LEAGUE 2 \n`);
-  console.log(computeAverageValues(league2Players));
-
   const league3Players = playerObjects.filter(player => player.LeagueIndex === 3);
-  console.log(`\n${league3Players.length} ===> AVERAGE VALUES FOR LEAGUE 3 \n`);
-  console.log(computeAverageValues(league3Players));
-
   const league4Players = playerObjects.filter(player => player.LeagueIndex === 4);
-  console.log(`\n${league4Players.length} ===> AVERAGE VALUES FOR LEAGUE 4 \n`);
-  console.log(computeAverageValues(league4Players));
-
   const league5Players = playerObjects.filter(player => player.LeagueIndex === 5);
-  console.log(`\n${league5Players.length} ===> AVERAGE VALUES FOR LEAGUE 5 \n`);
-  console.log(computeAverageValues(league5Players));
-
   const league6Players = playerObjects.filter(player => player.LeagueIndex === 6);
-  console.log(`\n${league6Players.length} ===> AVERAGE VALUES FOR LEAGUE 6 \n`);
-  console.log(computeAverageValues(league6Players));
-
   const league7Players = playerObjects.filter(player => player.LeagueIndex === 7);
-  console.log(`\n${league7Players.length} ===> AVERAGE VALUES FOR LEAGUE 7 \n`);
-  console.log(computeAverageValues(league7Players));
-
   const league8Players = playerObjects.filter(player => player.LeagueIndex === 8);
-  console.log(`\n${league8Players.length} ===> AVERAGE VALUES FOR LEAGUE 8 \n`);
-  console.log(computeAverageValues(league8Players));
 
   const splitedLeaguePlayers = [
     league1Players,
