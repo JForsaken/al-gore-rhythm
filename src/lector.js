@@ -1,7 +1,46 @@
 import R from 'ramda';
+import chalk from 'chalk';
 
 let trainSet = [];
 let learnSet = [];
+
+function transformRaw(data) {
+  const values = data.slice(1).filter(datum => datum.length > 1);
+
+  function buildPlayerFromDatum(playerDatum) {
+    const player = [];
+
+    playerDatum.forEach((datum) => {
+      player.push(parseFloat(datum) || 0);
+    });
+
+    return player;
+  }
+
+  function removeAberrant(datum) {
+    const temp = R.clone(datum);
+
+    const isLeagueValid = temp[1] >= 1 && temp[1] <= 8;
+    const isHoursPerWeekValid = temp[3] < 100;
+    const isAPMValid = temp[5] < 750;
+
+    return isLeagueValid && isHoursPerWeekValid && isAPMValid;
+  }
+
+  function reduceComplexity(datum) {
+    const temp = R.clone(datum);
+
+    delete temp[15];
+    delete temp[17];
+    delete temp[2];
+
+    return temp;
+  }
+
+  return values.map(buildPlayerFromDatum)
+    .map(reduceComplexity)
+    .filter(removeAberrant);
+}
 
 function transform(data) {
   const keys = data[0];
@@ -82,9 +121,11 @@ function transform(data) {
   // Second has no LeagueIndex
   function splitData(leagues) {
     function shuffle(a) {
-      var temp = R.clone(a);
-      var j, x, i;
-      for (i = temp.length; i; --i) {
+      const temp = R.clone(a);
+      let j;
+      let x;
+
+      for (let i = temp.length; i; i -= 1) {
         j = Math.floor(Math.random() * i);
         x = temp[i - 1];
         temp[i - 1] = temp[j];
@@ -131,6 +172,7 @@ function transform(data) {
     return { min, max };
   }
 
+  /* TODO: not used
   function computeVarianceValues(playerData) {
     const averageValues = computeAverageValues(playerData);
     const variances = {};
@@ -159,6 +201,7 @@ function transform(data) {
 
     return standardDeviations;
   }
+  */
 
   // Convert data to objects, trim unrequired params, filter aberrant data
   let playerObjects = values.map(buildPlayerFromDatum)
@@ -180,7 +223,7 @@ function transform(data) {
 
   playerObjects = playerObjects.map(assignAverageToNil);
   const minMaxValues = computeMinMaxValues(playerObjects);
-  console.log(minMaxValues);
+  console.log(`\n${chalk.bold.yellow(JSON.stringify(minMaxValues, null, 4))}`);
 
   function normalize(datum) {
     function shouldNormalize(key) { return key !== 'LeagueIndex'; }
@@ -197,27 +240,27 @@ function transform(data) {
       // apply weights
       // $POIDS
       if (key === 'GapBetweenPACs') {
-        temp[key] = temp[key] * 1000;
+        temp[key] *= 1000;
       }
 
       if (key === 'ActionLatency') {
-        temp[key] = temp[key] * 1000;
+        temp[key] *= 1000;
       }
 
       if (key === 'APM') {
-        temp[key] = temp[key] * 1000;
+        temp[key] *= 1000;
       }
 
       if (key === 'UniqueHotkeys') {
-        temp[key] = temp[key] * 1;
+        temp[key] *= 1;
       }
 
       if (key === 'AssignToHotkeys') {
-        temp[key] = temp[key] * 1;
+        temp[key] *= 1;
       }
 
       if (key === 'MinimapAttacks') {
-        temp[key] = temp[key] * 10;
+        temp[key] *= 10;
       }
     });
 
@@ -227,14 +270,14 @@ function transform(data) {
   playerObjects = playerObjects.map(normalize);
 
   // STATS
-  //const varianceValues = computeVarianceValues(playerObjects);
-  //console.log('variances', varianceValues);
-  //const standardDeviationValues = computeStandardDeviationValues(playerObjects);
-  //console.log('standard deviations', standardDeviationValues);
+  // const varianceValues = computeVarianceValues(playerObjects);
+  // console.log('variances', varianceValues);
+  // const standardDeviationValues = computeStandardDeviationValues(playerObjects);
+  // console.log('standard deviations', standardDeviationValues);
 
   // compute average values;
-  console.log(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES \n`);
-  console.log(averageValues);
+  console.log(chalk.bold.green(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES \n`));
+  console.log(chalk.bold.green(JSON.stringify(averageValues, null, 4)));
 
   const league1Players = playerObjects.filter(player => player.LeagueIndex === 1);
   const league2Players = playerObjects.filter(player => player.LeagueIndex === 2);
@@ -263,4 +306,6 @@ function transform(data) {
 }
 
 export default null;
-export const getData = file => transform(require(`../assets/${file}`));
+export const getData = (file, raw) => (
+  raw ? transformRaw(require(`../assets/${file}`)) : transform(require(`../assets/${file}`))
+);
