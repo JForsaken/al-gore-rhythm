@@ -38,7 +38,7 @@ const welcome = '\nWelcome to Al Gore Rhythm!';
 const algorithmMessage = `\nType 1 for KNN\nType 2 for Decision Tree `;
 const message = `In which file is the data located inside the ${chalk.underline.red('assets')} folder (JSON/CSV)? `;
 console.log(chalk.underline.bold.blue(welcome));
-const algorithm = readline.question(chalk.bold.cyan(algorithmMessage));
+const algorithm = parseInt(readline.question(chalk.bold.cyan(algorithmMessage)), 10);
 const file = readline.question(chalk.bold.cyan(message));
 const extension = file.split('.').slice(-1)[0].toUpperCase();
 
@@ -59,7 +59,7 @@ fs.writeFileSync(`./assets/${getDateTime()}.json`, JSON.stringify(data));
 
 // KNN
 if (algorithm === 1) {
-  console.log('Running KNN ...');
+  console.log(chalk.bold.blue('\nRunning KNN ...'));
 
   data.trainingSet.forEach((player) => {
     knn.learn(getFeatureVectorFromPlayer(player), player.LeagueIndex);
@@ -76,14 +76,15 @@ if (algorithm === 1) {
     }
   });
 
-  console.log(`PRECISION ==> ${goodEstimation / (goodEstimation + badEstimation)}%`);
-  console.log(`GOOD ==> ${goodEstimation}`);
-  console.log(`BAD ==> ${badEstimation}`);
+  const precision = (goodEstimation / (goodEstimation + badEstimation)) * 100;
+  console.log(chalk.bold.cyan(`\n${chalk.underline('PRECISION')} ==> ${precision}%`));
+  console.log(chalk.bold.green(`${chalk.underline('GOOD')} ==> ${goodEstimation}`));
+  console.log(chalk.bold.red(`${chalk.underline('BAD')} ==> ${badEstimation}\n`));
 }
 
 // Decision tree
 if (algorithm === 2) {
-  console.log('Running Decision tree ...');
+  console.log(chalk.bold.blue('\nRunning Decision tree ...'));
 
   const set = [];
   const result = [];
@@ -98,11 +99,13 @@ if (algorithm === 2) {
   const tree = new DecisionTree(set[0], result);
   tree.build();
 
+  /* eslint-disable max-len */
   const evaluation1 = sanitize([27, 8, 250, 109.821, 0.0031596071, 0.0004223237, 3, 0.0002502659, 0.0002502659, 0.0035819308, 32.8421, 55.0568, 4.952, 22, 0.0016737, 5, 0.0001720578, 0.00015642]);
   const evaluation2 = sanitize([18, 12, 350, 67.4754, 0.0004225216, 0.0001690086, 1, 0.000029407021, 0.0001448646, 0.002885219, 42.437, 68.0502, 4.3222, 16, 0.00074847, 7, 0, 0.00043459]);
   const evaluation3 = sanitize([18, 2, 200, 78.2244, 0.0019381047, 0.0002170677, 6, 0, 0.0005581742, 0.0023257256, 48.5638, 86.24, 5.5733, 22, 0.0018916, 6, 0, 0]);
   const evaluation4 = sanitize([22, 24, 1250, 121.7802, 0.0038408486, 0.0005826674, 6, 0.0005113204, 0.0014150495, 0.004007325, 24.6667, 45.3887, 4.9733, 25, 0.0010464, 10, 0.0002259323, 0.00052321]);
   const evaluation5 = sanitize([35, 20, 800, 53.6736, 0.0012491483, 0.0001703384, 3, 0, 0.0001703384, 0.0030093118, 57.2152, 84.8553, 2.9245, 16, 0.00081384, 5, 0, 0]);
+  /* eslint-enable max-len */
 
   const result1 = tree.classify(evaluation1);
   const result2 = tree.classify(evaluation2);
@@ -110,7 +113,7 @@ if (algorithm === 2) {
   const result4 = tree.classify(evaluation4);
   const result5 = tree.classify(evaluation5);
 
-  console.log('Player league (evaluation) : ', Object.keys(result1)[0]);
+  console.log('\nPlayer league (evaluation) : ', Object.keys(result1)[0]);
   console.log('Player league (evaluation) : ', Object.keys(result2)[0]);
   console.log('Player league (existing)   : ', Object.keys(result3)[0]);
   console.log('Player league (existing)   : ', Object.keys(result4)[0]);

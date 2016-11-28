@@ -1,4 +1,5 @@
 import R from 'ramda';
+import chalk from 'chalk';
 
 let trainSet = [];
 let learnSet = [];
@@ -171,6 +172,7 @@ function transform(data) {
     return { min, max };
   }
 
+  /* TODO: not used
   function computeVarianceValues(playerData) {
     const averageValues = computeAverageValues(playerData);
     const variances = {};
@@ -199,6 +201,7 @@ function transform(data) {
 
     return standardDeviations;
   }
+  */
 
   // Convert data to objects, trim unrequired params, filter aberrant data
   let playerObjects = values.map(buildPlayerFromDatum)
@@ -220,7 +223,7 @@ function transform(data) {
 
   playerObjects = playerObjects.map(assignAverageToNil);
   const minMaxValues = computeMinMaxValues(playerObjects);
-  console.log(minMaxValues);
+  console.log(`\n${chalk.bold.yellow(JSON.stringify(minMaxValues, null, 4))}`);
 
   function normalize(datum) {
     function shouldNormalize(key) { return key !== 'LeagueIndex'; }
@@ -273,8 +276,8 @@ function transform(data) {
   // console.log('standard deviations', standardDeviationValues);
 
   // compute average values;
-  console.log(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES \n`);
-  console.log(averageValues);
+  console.log(chalk.bold.green(`\n${playerObjects.length} ===> AVERAGE VALUES FOR ALL LEAGUES \n`));
+  console.log(chalk.bold.green(JSON.stringify(averageValues, null, 4)));
 
   const league1Players = playerObjects.filter(player => player.LeagueIndex === 1);
   const league2Players = playerObjects.filter(player => player.LeagueIndex === 2);
@@ -306,4 +309,3 @@ export default null;
 export const getData = (file, raw) => (
   raw ? transformRaw(require(`../assets/${file}`)) : transform(require(`../assets/${file}`))
 );
-
