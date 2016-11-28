@@ -39,7 +39,7 @@ function classify(input, tree) {
   return classify(input, branch);
 }
 
-DecisionTree.prototype.classify = (observation) => {
+DecisionTree.prototype.classify = function protoClassify(observation) {
   const self = this;
   return classify(observation, self.tree);
 };
@@ -147,7 +147,7 @@ function build(players, score) {
   });
 }
 
-DecisionTree.prototype.build = () => {
+DecisionTree.prototype.build = function protoBuild() {
   const self = this;
   const players = [];
 
