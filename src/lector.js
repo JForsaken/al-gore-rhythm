@@ -202,15 +202,15 @@ function transform(data) {
       // apply weights
       // $POIDS
       if (key === 'GapBetweenPACs') {
-        temp[key] *= 1000;
+        temp[key] *= 1;
       }
 
       if (key === 'ActionLatency') {
-        temp[key] *= 1000;
+        temp[key] *= 1;
       }
 
       if (key === 'APM') {
-        temp[key] *= 1000;
+        temp[key] *= 1;
       }
 
       if (key === 'UniqueHotkeys') {
@@ -222,7 +222,7 @@ function transform(data) {
       }
 
       if (key === 'MinimapAttacks') {
-        temp[key] *= 10;
+        temp[key] *= 1;
       }
     });
 

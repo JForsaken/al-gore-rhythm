@@ -47,6 +47,7 @@ let badEstimation = 0;
 if (algorithm === 1) {
   console.log(chalk.bold.blue('\nRunning KNN ...'));
 
+  console.log(data.trainingSet);
   data.trainingSet.forEach((player) => {
     knn.learn(getFeatureVectorFromPlayer(player), player.LeagueIndex);
   });
@@ -63,8 +64,6 @@ if (algorithm === 1) {
 
 // Decision tree
 if (algorithm === 2) {
-  console.log(chalk.bold.blue('\nRunning Decision tree ...'));
-
   const result = [];
   const set = data.trainingSet.map((datum) => {
     result.push(datum.LeagueIndex);

@@ -1,7 +1,44 @@
 // compute the euclidean distance between two vectors
 // function assumes vectors are arrays of equal length
 const dist = (v1, v2) => (
-  Math.sqrt(v1.reduce((prev, cur, index) => prev + ((cur - v2[index]) ** 2), 0))
+  Math.sqrt(v1.reduce((prev, cur, index) => {
+    let coeff = 0;
+
+    switch (index) {
+      case 0:
+        coeff = 2;
+        break;
+      case 1:
+        coeff = 2;
+        break;
+      case 2:
+        coeff = 2;
+        break;
+      case 3:
+        coeff = 2;
+        break;
+      case 4:
+        coeff = 2;
+        break;
+      case 5:
+        coeff = 2;
+        break;
+      case 6:
+        coeff = 2;
+        break;
+      case 7:
+        coeff = 2;
+        break;
+      case 8:
+        coeff = 2;
+        break;
+      default:
+        coeff = 1;
+        break;
+    }
+
+    return prev + (coeff * ((cur - v2[index]) ** 2));
+  }), 0)
 );
 
 const updateMax = (val, arr) => (
