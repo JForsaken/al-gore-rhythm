@@ -68,7 +68,7 @@ if (algorithm === 2) {
   const result = [];
   const set = data.trainingSet.map((datum) => {
     result.push(datum.LeagueIndex);
-    return R.keys(R.omit(['LeagueIndex'], datum)).map(x => datum[x]);
+    return getFeatureVectorFromPlayer(datum);
   });
 
   const tree = new DecisionTree(set, result);
