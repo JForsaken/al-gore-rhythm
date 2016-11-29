@@ -76,7 +76,6 @@ if (algorithm === 2) {
 
   data.learningSet.forEach((player) => {
     const treeResult = tree.classify(getFeatureVectorFromPlayer(player));
-    console.log(treeResult);
     if (player.LeagueIndex === parseInt(Object.keys(treeResult)[0], 10)) {
       goodEstimation += 1;
     } else {
