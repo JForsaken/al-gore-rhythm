@@ -4,44 +4,6 @@ import chalk from 'chalk';
 let trainSet = [];
 let learnSet = [];
 
-function transformRaw(data) {
-  const values = data.slice(1).filter(datum => datum.length > 1);
-
-  function buildPlayerFromDatum(playerDatum) {
-    const player = [];
-
-    playerDatum.forEach((datum) => {
-      player.push(parseFloat(datum) || 0);
-    });
-
-    return player;
-  }
-
-  function removeAberrant(datum) {
-    const temp = R.clone(datum);
-
-    const isLeagueValid = temp[1] >= 1 && temp[1] <= 8;
-    const isHoursPerWeekValid = temp[3] < 100;
-    const isAPMValid = temp[5] < 750;
-
-    return isLeagueValid && isHoursPerWeekValid && isAPMValid;
-  }
-
-  function reduceComplexity(datum) {
-    const temp = R.clone(datum);
-
-    delete temp[15];
-    delete temp[17];
-    delete temp[2];
-
-    return temp;
-  }
-
-  return values.map(buildPlayerFromDatum)
-    .map(reduceComplexity)
-    .filter(removeAberrant);
-}
-
 function transform(data) {
   const keys = data[0];
   // The last data is of length 1 for some reason
@@ -306,6 +268,6 @@ function transform(data) {
 }
 
 export default null;
-export const getData = (file, raw) => (
-  raw ? transformRaw(require(`../assets/${file}`)) : transform(require(`../assets/${file}`))
+export const getData = file => (
+  transform(require(`../assets/${file}`))
 );
