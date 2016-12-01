@@ -35,16 +35,22 @@ function transform(data) {
   function reduceComplexity(datum) {
     const temp = R.clone(datum);
     delete temp.GameID;
-//    delete temp.UniqueHotkeys; // From variance
-//    delete temp.MinimapAttacks; // From variance
+    delete temp.UniqueHotkeys; // From variance
+    delete temp.MinimapAttacks; // From variance
     delete temp.TotalMapExplored; // From common sense
-    delete temp.TotalHours;
-    delete temp.HoursPerWeek;
+    // delete temp.TotalHours;
+    // delete temp.HoursPerWeek;
     delete temp.UniqueUnitsMade;
     delete temp.WorkersMade;
     delete temp.ComplexUnitsMade;
     delete temp.ComplexAbilitiesUsed;
     delete temp.ActionsInPAC;
+    delete temp.SelectByHotkeys;
+    delete temp.MinimapRightClicks;
+    delete temp.AssignToHotkeys;
+    delete temp.NumberOfPACs;
+    // delete temp.Age;
+    // delete temp.ActionLatency;
 
     return temp;
   }
@@ -112,6 +118,7 @@ function transform(data) {
 
   function computeMinMaxValues(playerData) {
     const min = R.clone(playerData[0]); // TODO put all values to 0
+    console.log(min);
     const max = R.clone(min); // TODO put all values to 0
     Object.keys(min).forEach((key) => {
       min[key] = Number.MAX_SAFE_INTEGER;

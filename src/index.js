@@ -9,8 +9,6 @@ import { getDateTime } from './helpers';
 import KNN from './scholar';
 import DecisionTree from './scholar2';
 
-const k = 37; // number of params
-const knn = new KNN(k);
 
 const getFeatureVectorFromPlayer = p => R.keys(R.omit(['LeagueIndex'], p)).map(x => p[x]);
 
@@ -36,7 +34,7 @@ if (extension === 'CSV') { // CSV, so transform the data to JSON
 
 /* Serialize JSON to file */
 
-fs.writeFileSync(`./assets/${getDateTime()}.json`, JSON.stringify(data));
+// fs.writeFileSync(`./assets/${getDateTime()}.json`, JSON.stringify(data));
 
 /* Machine learning */
 
@@ -45,9 +43,11 @@ let badEstimation = 0;
 
 // KNN
 if (algorithm === 1) {
+  const k = 58;
+  const knn = new KNN(k);
+
   console.log(chalk.bold.blue('\nRunning KNN ...'));
 
-  console.log(data.trainingSet);
   data.trainingSet.forEach((player) => {
     knn.learn(getFeatureVectorFromPlayer(player), player.LeagueIndex);
   });
@@ -64,6 +64,8 @@ if (algorithm === 1) {
 
 // Decision tree
 if (algorithm === 2) {
+  console.log(chalk.bold.blue('\nRunning Decision Tree ...'));
+
   const result = [];
   const set = data.trainingSet.map((datum) => {
     result.push(datum.LeagueIndex);
@@ -81,6 +83,48 @@ if (algorithm === 2) {
       badEstimation += 1;
     }
   });
+}
+
+if (algorithm === 3) {
+  console.log(chalk.bold.blue('\nRunning KNN Weight Tracker ...'));
+
+  const coeffs = [1, 1, 1, 1, 1, 1];
+  const cursor = 5;
+
+  let max = 0;
+  for (let t = 1; t <= 100; t += 1) {
+    for (let i = 0; i < 6; i += 1) {
+      coeffs[i] += cursor;
+      const k = 58;
+      const knn = new KNN(k, coeffs);
+
+      goodEstimation = 0;
+      badEstimation = 0;
+
+      data.trainingSet.forEach((player) => {
+        knn.learn(getFeatureVectorFromPlayer(player), player.LeagueIndex);
+      });
+
+      data.learningSet.forEach((player) => {
+        const result = knn.classify(getFeatureVectorFromPlayer(player));
+        if (player.LeagueIndex === result) {
+          goodEstimation += 1;
+        } else {
+          badEstimation += 1;
+        }
+      });
+
+      const curPrec = (goodEstimation / (goodEstimation + badEstimation)) * 100;
+
+      if (curPrec >= max) {
+        max = curPrec;
+        const coeffsStr = coeffs.reduce((acc, curr) => `${acc}, ${curr}`);
+        console.log(`${coeffsStr}: ${curPrec}`);
+      } else {
+        coeffs[i] -= cursor;
+      }
+    }
+  }
 }
 
 const precision = (goodEstimation / (goodEstimation + badEstimation)) * 100;
